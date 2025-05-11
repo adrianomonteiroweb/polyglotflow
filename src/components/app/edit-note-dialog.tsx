@@ -23,9 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { NoteAttachments } from "./note-attachments";
 
 import type { Note } from "@/lib/types";
-import { updateNote } from "@/lib/actions";
+import { updateNote } from "@/actions/notes";
 
 interface EditNoteDialogProps {
   open: boolean;
@@ -80,8 +81,7 @@ export default function EditNoteDialog({
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0);
 
-      await updateNote({
-        id: note.id,
+      await updateNote(note.id, {
         title: formData.title,
         content: formData.content,
         category: formData.category,
@@ -131,7 +131,7 @@ export default function EditNoteDialog({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="edit-category">Pilar</Label>
               <Select
@@ -181,6 +181,14 @@ export default function EditNoteDialog({
               value={formData.tags}
               onChange={handleChange}
               placeholder="gramática, verbos, passado, etc."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Anexos</Label>
+            <NoteAttachments
+              noteId={note.id.toString()}
+              initialAttachments={note.attachments}
             />
           </div>
 

@@ -13,7 +13,7 @@ import AddNoteDialog from "./add-note-dialog";
 
 interface NotesContainerProps {
   language: Language;
-  notes: Note[];
+  notes?: Note[];
 }
 
 interface Filters {
@@ -36,7 +36,7 @@ const CATEGORIES = [
 
 export default function NotesContainer({
   language,
-  notes,
+  notes = [],
 }: NotesContainerProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);

@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { addLanguage } from "@/lib/actions";
+import { createLanguage } from "@/actions/languages";
 
 interface AddLanguageDialogProps {
   open: boolean;
@@ -34,11 +34,16 @@ export default function AddLanguageDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name) return;
+
+    if (!name) {
+      return;
+    }
 
     setIsSubmitting(true);
+
     try {
-      const newLanguage = await addLanguage({
+      const newLanguage = await createLanguage({
+        user_id: 1,
         name,
         background_image_url: backgroundUrl || undefined,
       });

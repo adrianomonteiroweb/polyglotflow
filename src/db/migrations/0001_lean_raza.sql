@@ -1,0 +1,1 @@
+ALTER TABLE "polyglotflow"."note_tags" ADD COLUMN "250" varchar NOT NULL;

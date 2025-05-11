@@ -23,8 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { NoteAttachments } from "./note-attachments";
 
-import { addNote } from "@/lib/actions";
+import { createNote } from "@/actions/notes";
+import { toast } from "sonner";
 
 interface AddNoteDialogProps {
   open: boolean;
@@ -46,6 +48,7 @@ export default function AddNoteDialog({
     tags: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [noteId, setNoteId] = useState<number | null>(null);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,7 +82,8 @@ export default function AddNoteDialog({
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0);
 
-      await addNote({
+      const note = await createNote({
+        user_id: 1, // TODO: Get from auth context
         language_id: languageId,
         title: formData.title,
         content: formData.content,
@@ -88,7 +92,9 @@ export default function AddNoteDialog({
         tags: tagsList,
       });
 
-      // Reset form and close dialog
+      setNoteId(note.id);
+
+      // Reset form
       setFormData({
         title: "",
         content: "",
@@ -97,10 +103,11 @@ export default function AddNoteDialog({
         tags: "",
       });
 
-      onOpenChange(false);
       router.refresh();
+      toast.success("Note created successfully");
     } catch (error) {
       console.error("Failed to add note:", error);
+      toast.error("Failed to create note");
     } finally {
       setIsSubmitting(false);
     }
@@ -139,7 +146,7 @@ export default function AddNoteDialog({
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Pilar</Label>
               <Select
@@ -191,6 +198,13 @@ export default function AddNoteDialog({
               placeholder="gramática, verbos, passado, etc."
             />
           </div>
+
+          {noteId && (
+            <div className="space-y-2">
+              <Label>Anexos</Label>
+              <NoteAttachments noteId={noteId.toString()} />
+            </div>
+          )}
 
           <DialogFooter>
             <Button

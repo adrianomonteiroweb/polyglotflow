@@ -1,36 +1,38 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/components/providers/auth-provider";
+import { UserArea } from "@/components/app/user-area";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "PolyglotFlow - Seu aplicativo de estudos de idiomas",
-  description:
-    "Aprenda idiomas de forma eficiente e organizada com o PolyglotFlow",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  themeColor: "#ffffff",
+export const metadata = {
+  title: "PolyglotFlow",
+  description: "Your language learning companion",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="pt-BR">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
+        <AuthProvider>
+          <div className="min-h-screen">
+            <header className="border-b">
+              <div className="container flex h-16 items-center justify-between px-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold">PolyglotFlow</span>
+                </div>
+                <UserArea />
+              </div>
+            </header>
+            <main>{children}</main>
+          </div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

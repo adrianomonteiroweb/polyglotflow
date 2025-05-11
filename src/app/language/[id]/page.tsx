@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
+
 import LanguageSidebar from "@/components/app/language-sidebar";
 import NotesContainer from "@/components/app/notes-container";
-import {
-  getLanguages,
-  getLanguageById,
-  getNotesByLanguageId,
-} from "@/lib/data";
+
+import { getNotes } from "@/actions/notes";
+import { getLanguageById, getLanguages } from "@/actions/languages";
 
 export default async function LanguagePage({ params }: any) {
   try {
@@ -15,10 +14,10 @@ export default async function LanguagePage({ params }: any) {
       notFound();
     }
 
-    const [languages, language, notes] = await Promise.all([
+    const [languages, language, notesResponse] = await Promise.all([
       getLanguages(),
       getLanguageById(languageId),
-      getNotesByLanguageId(languageId),
+      getNotes({ language_id: languageId }),
     ]);
 
     if (!language) {
@@ -27,9 +26,12 @@ export default async function LanguagePage({ params }: any) {
 
     return (
       <main className="flex min-h-screen bg-gray-50">
-        <LanguageSidebar languages={languages} activeLanguageId={languageId} />
+        <LanguageSidebar
+          languages={languages.data}
+          activeLanguageId={languageId}
+        />
         <div className="flex-1 overflow-hidden">
-          <NotesContainer language={language} notes={notes} />
+          <NotesContainer language={language} notes={notesResponse?.data} />
         </div>
       </main>
     );

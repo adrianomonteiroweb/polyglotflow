@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Edit, Archive, CheckCircle, MoreVertical, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   Card,
@@ -19,8 +20,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import type { Note } from "@/lib/types";
-import { updateNoteStatus, deleteNote } from "@/lib/actions";
 import EditNoteDialog from "./edit-note-dialog";
+import { updateNoteStatus } from "@/lib/actions";
+import { removeNote } from "@/actions/notes";
 
 interface NoteCardProps {
   note: Note;
@@ -29,6 +31,7 @@ interface NoteCardProps {
 export default function NoteCard({ note }: NoteCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const router = useRouter();
 
   const difficultyColors = {
     easy: "bg-green-100 text-green-800",
@@ -76,7 +79,8 @@ export default function NoteCard({ note }: NoteCardProps) {
 
     setIsUpdating(true);
     try {
-      await deleteNote(note.id);
+      await removeNote(note.id);
+      router.refresh();
     } catch (error) {
       console.error("Failed to delete note:", error);
     } finally {

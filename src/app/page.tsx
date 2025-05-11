@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
 
 import LanguageSidebar from "@/components/app/language-sidebar";
-import { getLanguages } from "@/lib/data";
+import { getLanguages } from "@/actions/languages";
 
 export default async function Home() {
   const languages = await getLanguages();
 
   // Redirect to first language if available
-  if (languages.length > 0) {
-    redirect(`/language/${languages[0].id}`);
+  if (languages.data.length > 0) {
+    redirect(`/language/${languages.data[0].id}`);
   }
 
   return (
