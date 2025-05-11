@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { noteAttachments } from "@/db/schema";
+import { noteAttachments, notes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
@@ -53,7 +53,14 @@ export async function uploadAttachment(formData: FormData) {
       })
       .returning();
 
-    revalidatePath(`/language/${noteId}`);
+    // Get the language ID from the note
+    const note = await db.query.notes.findFirst({
+      where: eq(notes.id, parseInt(noteId)),
+    });
+
+    if (note) {
+      revalidatePath(`/language/${note.language_id}`);
+    }
     return attachment;
   } catch (error) {
     console.error("Upload error:", error);

@@ -38,6 +38,7 @@ export class NoteRepository extends BaseRepository {
       where,
       with: {
         tags: true,
+        attachments: true,
       },
       orderBy: [asc(notes.id)],
       limit,

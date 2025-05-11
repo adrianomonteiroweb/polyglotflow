@@ -27,6 +27,9 @@ import { NoteAttachments } from "./note-attachments";
 
 import { createNote } from "@/actions/notes";
 import { toast } from "sonner";
+import { Upload, X } from "lucide-react";
+import { formatFileSize } from "@/lib/utils";
+import { uploadAttachment } from "@/actions/attachments";
 
 interface AddNoteDialogProps {
   open: boolean;
@@ -49,6 +52,7 @@ export default function AddNoteDialog({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [noteId, setNoteId] = useState<number | null>(null);
+  const [pendingAttachments, setPendingAttachments] = useState<File[]>([]);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -94,6 +98,16 @@ export default function AddNoteDialog({
 
       setNoteId(note.id);
 
+      // Upload any pending attachments
+      if (pendingAttachments.length > 0) {
+        for (const file of pendingAttachments) {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("noteId", note.id.toString());
+          await uploadAttachment(formData);
+        }
+      }
+
       // Reset form
       setFormData({
         title: "",
@@ -102,6 +116,7 @@ export default function AddNoteDialog({
         difficulty: "",
         tags: "",
       });
+      setPendingAttachments([]);
 
       router.refresh();
       toast.success("Note created successfully");
@@ -113,11 +128,32 @@ export default function AddNoteDialog({
     }
   }
 
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    if (noteId) {
+      // If note exists, upload directly
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("noteId", noteId.toString());
+        await uploadAttachment(formData);
+      }
+    } else {
+      // If note doesn't exist yet, store files for later upload
+      setPendingAttachments((prev) => [...prev, ...Array.from(files)]);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Adicionar nova nota</DialogTitle>
+          <DialogTitle>Nova nota</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -199,12 +235,66 @@ export default function AddNoteDialog({
             />
           </div>
 
-          {noteId && (
-            <div className="space-y-2">
-              <Label>Anexos</Label>
-              <NoteAttachments noteId={noteId.toString()} />
+          <div className="space-y-2">
+            <Label>Anexos</Label>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="relative"
+                disabled={isSubmitting}
+              >
+                <input
+                  type="file"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={handleFileUpload}
+                  multiple
+                  disabled={isSubmitting}
+                />
+                <Upload className="mr-2 h-4 w-4" />
+                {isSubmitting ? "Enviando..." : "Adicionar anexos"}
+              </Button>
             </div>
-          )}
+
+            {pendingAttachments.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Anexos pendentes</h4>
+                <div className="grid gap-2">
+                  {pendingAttachments.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 border rounded-md"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{file.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({formatFileSize(file.size)})
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setPendingAttachments((prev) =>
+                            prev.filter((_, i) => i !== index)
+                          )
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {noteId && (
+              <NoteAttachments
+                noteId={noteId.toString()}
+                initialAttachments={[]}
+              />
+            )}
+          </div>
 
           <DialogFooter>
             <Button

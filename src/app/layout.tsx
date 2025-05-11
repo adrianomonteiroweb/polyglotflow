@@ -22,10 +22,7 @@ export default function RootLayout({
         <AuthProvider>
           <div className="min-h-screen">
             <header className="border-b">
-              <div className="container flex h-16 items-center justify-between px-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold">PolyglotFlow</span>
-                </div>
+              <div className="container flex h-16 items-center justify-end px-4">
                 <UserArea />
               </div>
             </header>
