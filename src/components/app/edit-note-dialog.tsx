@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { NoteAttachments } from "./note-attachments";
 
 import type { Note } from "@/lib/types";
