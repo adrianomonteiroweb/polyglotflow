@@ -1,7 +1,7 @@
 import BaseRepository from "./BaseRepository";
 
 import { asc, ilike, eq, and } from "drizzle-orm";
-import { notes } from "..";
+import { notes, noteTags } from "..";
 
 export type GetNoteParams = {
   q?: string;
@@ -49,6 +49,21 @@ export class NoteRepository extends BaseRepository {
       count: await super.count(where),
       data,
     };
+  }
+
+  static async deleteById(id: number, opts: any = {}) {
+    const db = opts.tx || this.db;
+
+    // First delete all associated tags
+    await db.delete(noteTags).where(eq(noteTags.note_id, id));
+
+    // Then delete the note
+    const deleted = await db
+      .delete(this.model)
+      .where(eq(this.model.id, id))
+      .returning();
+
+    return deleted[0];
   }
 }
 

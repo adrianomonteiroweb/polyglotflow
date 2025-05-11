@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, BookOpen, Languages, Menu } from "lucide-react";
+import { Plus, BookOpen, Languages, Menu, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { Language } from "@/lib/types";
 import AddLanguageDialog from "./add-language-dialog";
+import DeleteLanguageDialog from "./delete-language-dialog";
 
 interface LanguageSidebarProps {
   languages: Language[];
@@ -23,6 +24,9 @@ export default function LanguageSidebar({
 }: LanguageSidebarProps) {
   const [isAddLanguageOpen, setIsAddLanguageOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [languageToDelete, setLanguageToDelete] = useState<Language | null>(
+    null
+  );
 
   return (
     <>
@@ -67,31 +71,47 @@ export default function LanguageSidebar({
               </div>
             ) : (
               languages.map((language) => (
-                <Link
+                <div
                   key={language.id}
-                  href={`/language/${language.id}`}
                   className={cn(
-                    "block relative h-24 rounded-lg overflow-hidden group transition-all",
+                    "relative h-24 rounded-lg overflow-hidden group transition-all",
                     activeLanguageId === language.id
                       ? "ring-2 ring-primary"
                       : "hover:ring-1 hover:ring-primary/50"
                   )}
-                  onClick={() => setIsSidebarOpen(false)}
                 >
-                  <Image
-                    src={
-                      language.background_image_url ||
-                      "/placeholder.svg?height=96&width=240"
-                    }
-                    alt={language.name}
-                    fill
-                    className="object-cover brightness-[0.7]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-3 text-white font-medium">
-                    {language.name}
-                  </div>
-                </Link>
+                  <Link
+                    href={`/language/${language.id}`}
+                    className="block h-full"
+                    onClick={() => setIsSidebarOpen(false)}
+                  >
+                    <Image
+                      src={
+                        language.background_image_url ||
+                        "/placeholder.svg?height=96&width=240"
+                      }
+                      alt={language.name}
+                      fill
+                      className="object-cover brightness-[0.7]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-3 text-white font-medium">
+                      {language.name}
+                    </div>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setLanguageToDelete(language);
+                    }}
+                    title="Excluir idioma"
+                  >
+                    <Trash2 className="h-4 w-4 text-white" />
+                  </Button>
+                </div>
               ))
             )}
           </div>
@@ -101,6 +121,14 @@ export default function LanguageSidebar({
           open={isAddLanguageOpen}
           onOpenChange={setIsAddLanguageOpen}
         />
+
+        {languageToDelete && (
+          <DeleteLanguageDialog
+            open={!!languageToDelete}
+            onOpenChange={(open) => !open && setLanguageToDelete(null)}
+            language={languageToDelete}
+          />
+        )}
       </div>
 
       {isSidebarOpen && (
