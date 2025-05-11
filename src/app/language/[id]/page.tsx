@@ -6,9 +6,17 @@ import NotesContainer from "@/components/app/notes-container";
 import { getNotes } from "@/actions/notes";
 import { getLanguageById, getLanguages } from "@/actions/languages";
 
-export default async function LanguagePage({ params }: any) {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function LanguagePage({ params }: PageProps) {
   try {
-    const languageId = Number.parseInt(params.id);
+    // Ensure params is resolved before accessing id
+    const { id } = await Promise.resolve(params);
+    const languageId = Number.parseInt(id);
 
     if (isNaN(languageId)) {
       notFound();

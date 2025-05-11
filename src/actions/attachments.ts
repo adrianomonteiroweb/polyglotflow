@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { redirect } from "next/navigation";
@@ -28,6 +28,7 @@ export async function uploadAttachment(formData: FormData) {
     }
 
     // Create uploads directory if it doesn't exist
+    await mkdir(UPLOAD_DIR, { recursive: true });
     await writeFile(join(UPLOAD_DIR, ".gitkeep"), "");
 
     // Generate unique filename
