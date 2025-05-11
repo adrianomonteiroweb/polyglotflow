@@ -101,7 +101,7 @@ export default function NotesContainer({
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="p-4 border-b bg-white flex items-center justify-between">
+      <div className="p-4 border-b bg-white flex items-center justify-between md:mt-0 mt-14">
         <h2 className="text-xl font-semibold">{language.name}</h2>
         <div className="flex gap-2">
           <Button
@@ -126,12 +126,12 @@ export default function NotesContainer({
 
       <Tabs defaultValue="reading" className="flex-1 overflow-hidden">
         <div className="bg-white border-b px-4">
-          <TabsList className="h-12">
+          <TabsList className="h-auto flex-wrap md:h-12">
             {CATEGORIES.map((category) => (
               <TabsTrigger
                 key={category.id}
                 value={category.id}
-                className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+                className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary h-10 md:h-12"
               >
                 {category.label}
                 <span className="ml-1.5 text-xs bg-muted rounded-full px-1.5 py-0.5">
