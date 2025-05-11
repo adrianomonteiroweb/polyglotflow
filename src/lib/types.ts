@@ -19,6 +19,18 @@ export interface NoteTag {
   tag: string;
 }
 
+export interface NoteAttachment {
+  id: number;
+  note_id: number;
+  filename: string;
+  original_filename: string;
+  mime_type: string;
+  size: number;
+  url: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Note {
   id: number;
   user_id: number;
@@ -33,4 +45,5 @@ export interface Note {
   created_at: string;
   updated_at: string;
   tags: NoteTag[];
+  attachments: NoteAttachment[];
 }
