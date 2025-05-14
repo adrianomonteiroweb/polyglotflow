@@ -55,6 +55,7 @@ export const notes = schema.table("notes", {
   language_id: integer("language_id")
     .references(() => languages.id)
     .notNull(),
+
   title: varchar("title", { length: 255 }).notNull(),
   content: text("content").notNull(),
   category: varchar("category", {
@@ -66,6 +67,7 @@ export const notes = schema.table("notes", {
   status: varchar("status", {
     enum: ["pending", "reviewed", "archived"],
   }).default("pending"),
+
   reviewed_at: timestamp("reviewed_at"),
   archived_at: timestamp("archived_at"),
 

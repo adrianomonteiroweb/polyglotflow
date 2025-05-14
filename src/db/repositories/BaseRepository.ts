@@ -65,36 +65,46 @@ export class BaseRepository {
     return result[0]?.count || 0;
   }
 
-  static async update(id: any, data: any, opts: any = {}) {
+  static async updateOrCreate(data: any, target: any = null, opts: any = {}) {
     const db = opts.tx || this.db;
 
-    const updated: any = await db
-      .update(this.model)
-      .set(data)
-      .where(eq(this.model.id, id))
+    return await db
+      .insert(this.model)
+      .values(data)
+      .onConflictDoUpdate({
+        target: target || this.model.id_cliente,
+        set: data,
+      })
       .returning();
-
-    return updated[0];
   }
 
-  static async deleteById(id: any, opts: any = {}) {
+  static async create(data: any, opts: any = {}) {
     const db = opts.tx || this.db;
 
-    const deleted: any = await db
-      .delete(this.model)
-      .where(eq(this.model.id, id))
-      .returning();
+    const created: any = await db.insert(this.model).values(data).returning();
 
-    return deleted[0];
+    return created[0];
   }
 
   static async bulkCreate(data: any, opts: any = {}) {
     const db = opts.tx || this.db;
 
-    // Remove ids from data to let the database handle the sequences
-    const dataWithoutIds = data.map(({ id, ...rest }: any) => rest);
+    return await db.insert(this.model).values(data).returning();
+  }
 
-    return await db.insert(this.model).values(dataWithoutIds).returning();
+  static async update(id_cliente: any, data: any, opts: any = {}) {
+    const db = opts.tx || this.db;
+
+    if (this.model?.updated_at) {
+      data.update_at = new Date();
+    }
+
+    const updated: any = await db
+      .update(this.model)
+      .set(data)
+      .where(eq(this.model.id, id_cliente))
+      .returning();
+    return updated[0];
   }
 
   static async bulkUpdate(where: any, data: any, opts: any = {}) {
@@ -107,18 +117,12 @@ export class BaseRepository {
     return await db.delete(this.model).where(where).returning();
   }
 
-  static async create(data: any, opts: any = {}) {
+  static async deleteById(id_cliente: any, opts: any = {}) {
     const db = opts.tx || this.db;
-
-    // Remove id from data if it exists to let the database handle the sequence
-    const { id, ...dataWithoutId } = data;
-
-    const created: any = await db
-      .insert(this.model)
-      .values(dataWithoutId)
+    return await db
+      .delete(this.model)
+      .where(eq(this.model.id, id_cliente))
       .returning();
-
-    return created[0];
   }
 
   static getUltimaDataReferencia(id_cliente: any) {
